@@ -1,3 +1,6 @@
+﻿// HeapSortAndTest.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+//
+
 #include <iostream>
 #include <vector>
 #include <time.h>
@@ -27,7 +30,7 @@ void recoverHeap(vector<int>* heap, int index, int length) {
 }
 
 void heapSort(vector<int>* heap, int length) {
-
+	
 	for (int i = length/2 - 1;i >= 0; i--) {
 		recoverHeap(heap, i, length); // Recovering
 	}
@@ -73,16 +76,25 @@ int main(int len, char* args[])
 	int testermod = 0;
 	int fileoutput = 0;
 	int notRandom = 0;
+	int length = 0;
 	string filename = "";
-
+	int* testmass = (int*)malloc(5*sizeof(int));
 	if (len == 1) {
 		silent = 1;
 	}
 	for (int i = 1; i < len; i++) {
 		if (*args[i] == 's')
 			silent = 1;
-		//else if (*args[i] == 't')
-		//	testermod = 1;
+		else if (*args[i] == 't') {
+			testermod = 1;
+			free(testmass);
+			testmass = (int*)malloc((len - i - 1) * sizeof(int));
+			length = len - i - 1;
+			for (int j = i+1; j < len; j++) {
+				testmass[j - i - 1] = atoi(args[j]);
+			}
+			break;
+		}
 		else if (*args[i] == 'n')
 			notRandom = 1;
 		else if (*args[i] == 'f' && len != i + 1) {
@@ -94,10 +106,12 @@ int main(int len, char* args[])
 	vector<int> mass;
 	srand(time(0));
 	setlocale(LC_ALL, "Russian");
-    cout << "Количество элементов в массиве : ";
-	cin >> n;
+	if (testermod == 0) {
+		cout << "Количество элементов в массиве : ";
+		cin >> n;
+	}
 
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n && testermod == 0; i++) {
 		if (notRandom) {
 			int n = 0;
 			cin >> n;
@@ -106,10 +120,20 @@ int main(int len, char* args[])
 			mass.push_back(rand());
 	}
 	if (testermod) {
-		clock_t t1 = clock();
-		TheapSort(&mass, mass.size());
-		clock_t t2 = clock();
-		printf("Время выполнения : %f\n", (double)(t2 - t1) / CLOCKS_PER_SEC);
+		for (int i = 0; i < length; i++) {
+			for (int j = 0; j < *(testmass+i); j++) {
+				mass.push_back(rand());
+			}
+			clock_t t1 = clock();
+			heapSort(&mass, mass.size());
+			clock_t t2 = clock();
+			printf("Количество элементов : %i\n", testmass[i]);
+			printf("Время выполнения в секундах : %f\n", (double)(t2 - t1) / CLOCKS_PER_SEC);
+			printf("Время выполнения в тиках : %i\n", t2 - t1);
+			printf("------------------------------------------------------------------------\n");
+			mass.clear();
+		}
+
 	}
 	else {
 		clock_t t1 = clock();
@@ -132,3 +156,4 @@ int main(int len, char* args[])
 	system("pause");
 	return 0;
 }
+
